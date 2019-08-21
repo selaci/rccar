@@ -6,6 +6,7 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Vibrator;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -145,62 +146,80 @@ public class JoystickFragment extends Fragment {
         }
     }
 
-    private float yLeftO, yLeftIIni, yLeftIComp, yLeftCInit;
-    private float yLeftCLowest, yLeftCHighest, yLeftCVirtPos;
-    private float y;
+    private float yInc, yComp;
+    private float yInner, yCentre;
+    private float y0;
 
     @SuppressLint("ClickableViewAccessibility")
     private void setViewsForLeftJoystick(View view) {
         final ImageView lOuter = view.findViewById(R.id.lOuter);
-        lOuter.post(new Runnable() {
-            @Override
-            public void run() {
-                yLeftO = lOuter.getY();
-            }
-        });
-
         lInner = view.findViewById(R.id.lInner);
-        lInner.post(new Runnable() {
-            @Override
-            public void run() {
-                yLeftIIni = lInner.getY();
-                yLeftIComp = (yLeftIIni - yLeftO) / (lCentre.getY() - yLeftO);
-            }
-        });
-
         lCentre = view.findViewById(R.id.lCentre);
+
+        // Set pixel positions.
         lCentre.post(new Runnable() {
             @Override
             public void run() {
-                yLeftCLowest = yLeftO;
-                yLeftCHighest = yLeftO + lOuter.getHeight() - lCentre.getHeight();
-                yLeftCVirtPos = lCentre.getY();
-                yLeftCInit = lCentre.getY();
+                yInner = lInner.getY();
+                yCentre = lCentre.getY();
+
+                yInc = lCentre.getY() - lOuter.getY();
+                yComp = (lInner.getY() - lOuter.getY()) / yInc;
             }
         });
 
+
         lOuter.setOnTouchListener(new View.OnTouchListener() {
             @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                int action = event.getActionMasked();
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                int action = motionEvent.getAction();
 
                 switch (action) {
                     case MotionEvent.ACTION_DOWN:
-                        vibrate();
-                        y = event.getY();
+                        y0 = motionEvent.getY();
                         break;
                     case MotionEvent.ACTION_MOVE:
-                        updateLeftPositions(event.getY());
-                        rectifyThrust();
+                        updateLeftView(motionEvent.getY());
                         break;
                     case MotionEvent.ACTION_UP:
-                        moveLeftToInitial();
-                        stopThrust();
+                        centreLeftViews();
                         break;
                 }
                 return true;
             }
         });
+    }
+
+    private void updateLeftView(float yE) {
+        float yDiff = yE - y0;
+
+        if (yDiff <= -yInc) {       // You reached the top part.
+            lInner.setY(yInner - yInc * yComp);
+            lInner.invalidate();
+
+            lCentre.setY(yCentre - yInc);
+            lCentre.invalidate();
+        } else if (yDiff >= yInc) { // You reached the bottom part.
+            lInner.setY(yInner + yInc * yComp);
+            lInner.invalidate();
+
+            lCentre.setY(yCentre + yInc);
+            lCentre.invalidate();
+        } else {
+            lInner.setY(yInner + yDiff * yComp);
+            lInner.invalidate();
+
+            lCentre.setY(yCentre + yDiff);
+            lCentre.invalidate();
+        }
+    }
+
+    private void centreLeftViews() {
+        lInner.setY(yInner);
+        lInner.invalidate();
+
+        lCentre.setY(yCentre);
+        lCentre.invalidate();
     }
 
     private void vibrate() {
@@ -210,122 +229,77 @@ public class JoystickFragment extends Fragment {
         }
     }
 
-    private void updateLeftPositions(float yE) {
-        float yCDiff, yCPos;
-
-        yCDiff = yE - y;
-        yLeftCVirtPos += yCDiff;
-
-        if (yLeftCVirtPos < yLeftCLowest) {
-            yCPos = yLeftCLowest;
-        } else if (yLeftCVirtPos > yLeftCHighest) {
-            yCPos = yLeftCHighest;
-        } else {
-            yCPos = yLeftCVirtPos;
-        }
-
-        y = yE;
-        lCentre.setY(yCPos);
-        lCentre.invalidate();
-
-        float yIDiff = (yCPos - yLeftCInit) * yLeftIComp;
-        lInner.setY(yLeftIIni + yIDiff);
-        lInner.invalidate();
-    }
-
-    private void moveLeftToInitial() {
-        yLeftCVirtPos = yLeftCInit;
-        lCentre.setY(yLeftCInit);
-        lInner.setY(yLeftIIni);
-        lInner.invalidate();
-    }
-
-    private float xRightO, xRightIIni, xRightIComp, xRightCInit;
-    private float xRightCLowest, xRightCHighest, xRightCVirtPos;
-    private float x;
+    private float xInner, xCentre;
+    private float xInc, xComp;
+    private float x0;
 
     @SuppressLint("ClickableViewAccessibility")
     private void setViewsForRightJoystick(View view) {
         final ImageView rOuter = view.findViewById(R.id.rOuter);
-        rOuter.post(new Runnable() {
-            @Override
-            public void run() {
-                xRightO = rOuter.getX();
-            }
-        });
-
         rInner = view.findViewById(R.id.rInner);
-        rInner.post(new Runnable() {
-            @Override
-            public void run() {
-                xRightIIni = rInner.getX();
-                xRightIComp = (xRightIIni - xRightO) / (rCentre.getX() - xRightO);
-            }
-        });
-
         rCentre = view.findViewById(R.id.rCenter);
+
         rCentre.post(new Runnable() {
             @Override
             public void run() {
-                xRightCLowest = xRightO;
-                xRightCHighest = xRightO + rOuter.getWidth() - rCentre.getWidth();
-                xRightCVirtPos = rCentre.getX();
-                xRightCInit = rCentre.getX();
+                xInner = rInner.getX();
+                xCentre = rCentre.getX();
+
+                xInc = rCentre.getX() - rOuter.getX();
+                xComp = (rInner.getX() - rOuter.getX()) / xInc;
             }
         });
 
         rOuter.setOnTouchListener(new View.OnTouchListener() {
             @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                int action = event.getActionMasked();
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                int action = motionEvent.getAction();
 
                 switch (action) {
                     case MotionEvent.ACTION_DOWN:
-                        vibrate();
-                        x = event.getX();
+                        x0 = motionEvent.getX();
                         break;
                     case MotionEvent.ACTION_MOVE:
-                        updateRightPositions(event.getX());
-                        rectifySteering();
+                        updateRightViews(motionEvent.getX());
                         break;
                     case MotionEvent.ACTION_UP:
-                        moveRightToInitial();
-                        centerSteering();
-                        break;
+                        centreRightPositions();
                 }
                 return true;
             }
         });
     }
 
-    private void updateRightPositions(float xE) {
-        float xCDiff, xCPos;
+    private void updateRightViews(float xE) {
+        float xDiff = xE - x0;
 
-        xCDiff = xE - x;
-        xRightCVirtPos += xCDiff;
+        if (xDiff < -xInc) {       // You reached the left most.
+            rInner.setX(xInner - xInc * xComp);
+            rInner.invalidate();
 
-        if (xRightCVirtPos < xRightCLowest) {
-            xCPos = xRightCLowest;
-        } else if (xRightCVirtPos > xRightCHighest) {
-            xCPos = xRightCHighest;
+            rCentre.setX(xCentre - xInc);
+            rCentre.invalidate();
+        } else if (xDiff > xInc) { // Your reached the right most.
+            rInner.setX(xInner + xInc * xComp);
+            rInner.invalidate();
+
+            rCentre.setX(xCentre + xInc);
+            rCentre.invalidate();
         } else {
-            xCPos = xRightCVirtPos;
+            rInner.setX(xInner + xDiff * xComp);
+            rInner.invalidate();
+
+            rCentre.setX(xCentre + xDiff);
+            rCentre.invalidate();
         }
-
-        x = xE;
-        rCentre.setX(xCPos);
-        rCentre.invalidate();
-
-        float xIDiff = (xCPos - xRightCInit) * xRightIComp;
-        rInner.setX(xRightIIni + xIDiff);
-        rInner.invalidate();
     }
 
-    private void moveRightToInitial() {
-        xRightCVirtPos = xRightCInit;
-        rCentre.setX(xRightCInit);
-        rInner.setX(xRightIIni);
+    private void centreRightPositions() {
+        rInner.setX(xInner);
         rInner.invalidate();
+
+        rCentre.setX(xCentre);
+        rCentre.invalidate();
     }
 
     private void rectifyThrust() {

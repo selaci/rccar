@@ -24,6 +24,7 @@ import com.kerberosns.rccar.fragments.SettingsFragment;
 public class MainActivity extends AppCompatActivity implements
         DevicesFragment.Selectable, SettingsFragment.Configurable {
 
+    public static final String APPLICATION = "RC_CAR";
     public static String SETTINGS = "SETTINGS";
 
     private DrawerLayout mDrawer;
