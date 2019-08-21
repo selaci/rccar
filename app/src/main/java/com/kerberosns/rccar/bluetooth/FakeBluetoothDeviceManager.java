@@ -1,7 +1,11 @@
 package com.kerberosns.rccar.bluetooth;
 
+import android.util.Log;
+
+import com.kerberosns.rccar.MainActivity;
+
 public class FakeBluetoothDeviceManager extends BluetoothDeviceManager {
-    public FakeBluetoothDeviceManager(BluetoothManager manager, Device device) {
+    FakeBluetoothDeviceManager(BluetoothManager manager, Device device) {
         super(manager, device);
     }
 
@@ -36,5 +40,7 @@ public class FakeBluetoothDeviceManager extends BluetoothDeviceManager {
         }
     }
 
-    public void write(byte encoded) {}
+    public void write(byte encoded) {
+        Log.d(MainActivity.APPLICATION, "encoded: " + encoded);
+    }
 }

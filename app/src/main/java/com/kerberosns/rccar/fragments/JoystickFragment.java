@@ -6,7 +6,6 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Vibrator;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -24,12 +23,14 @@ import com.kerberosns.rccar.Settings;
 import com.kerberosns.rccar.bluetooth.BluetoothDeviceManager;
 import com.kerberosns.rccar.bluetooth.BluetoothDeviceManagerFactory;
 import com.kerberosns.rccar.bluetooth.Device;
+import com.kerberosns.rccar.rccar.Driver;
 
 import java.io.IOException;
 
 public class JoystickFragment extends Fragment {
     private Context mContext;
     private BluetoothDeviceManager mDeviceManager;
+    private Driver mDriver;
 
     private static String BLUETOOTH_DEVICE = "BLUETOOTH_DEVICE";
 
@@ -77,6 +78,8 @@ public class JoystickFragment extends Fragment {
         if (device == null) {
             toastMessage(R.string.device_not_found);
         }
+
+        mDriver = new Driver(mDeviceManager);
     }
 
     @Override
@@ -177,21 +180,26 @@ public class JoystickFragment extends Fragment {
                 switch (action) {
                     case MotionEvent.ACTION_DOWN:
                         y0 = motionEvent.getY();
+                        vibrate();
                         break;
                     case MotionEvent.ACTION_MOVE:
-                        updateLeftView(motionEvent.getY());
+                        int thrust = (int) updateLeftView(motionEvent.getY());
+                        mDriver.rectifyThrust(thrust);
                         break;
                     case MotionEvent.ACTION_UP:
                         centreLeftViews();
+                        mDriver.stopThrust();
                         break;
                 }
+
                 return true;
             }
         });
     }
 
-    private void updateLeftView(float yE) {
+    private float updateLeftView(float yE) {
         float yDiff = yE - y0;
+        float thrust;
 
         if (yDiff <= -yInc) {       // You reached the top part.
             lInner.setY(yInner - yInc * yComp);
@@ -199,19 +207,32 @@ public class JoystickFragment extends Fragment {
 
             lCentre.setY(yCentre - yInc);
             lCentre.invalidate();
+
+            thrust = 5;
+
         } else if (yDiff >= yInc) { // You reached the bottom part.
             lInner.setY(yInner + yInc * yComp);
             lInner.invalidate();
 
             lCentre.setY(yCentre + yInc);
             lCentre.invalidate();
+
+            thrust = -5;
         } else {
             lInner.setY(yInner + yDiff * yComp);
             lInner.invalidate();
 
             lCentre.setY(yCentre + yDiff);
             lCentre.invalidate();
+
+            thrust = map(yDiff, -yInc, yInc, Driver.MAX_THRUST_FORWARD, Driver.MAX_THRUST_BACKWARD);
         }
+
+        return thrust;
+    }
+
+    private float map(float x, float inMin, float inMax, float outMin, float outMax) {
+        return (x - inMin) * (outMax - outMin) / (inMax - inMin) + outMin;
     }
 
     private void centreLeftViews() {
@@ -258,20 +279,25 @@ public class JoystickFragment extends Fragment {
                 switch (action) {
                     case MotionEvent.ACTION_DOWN:
                         x0 = motionEvent.getX();
+                        vibrate();
                         break;
                     case MotionEvent.ACTION_MOVE:
-                        updateRightViews(motionEvent.getX());
+                        int steering = (int) updateRightViews(motionEvent.getX());
+                        mDriver.rectifySteering(steering);
                         break;
                     case MotionEvent.ACTION_UP:
                         centreRightPositions();
+                        mDriver.centerSteering();
                 }
+
                 return true;
             }
         });
     }
 
-    private void updateRightViews(float xE) {
+    private float updateRightViews(float xE) {
         float xDiff = xE - x0;
+        float steering;
 
         if (xDiff < -xInc) {       // You reached the left most.
             rInner.setX(xInner - xInc * xComp);
@@ -279,19 +305,28 @@ public class JoystickFragment extends Fragment {
 
             rCentre.setX(xCentre - xInc);
             rCentre.invalidate();
+
+            steering = -5;
+
         } else if (xDiff > xInc) { // Your reached the right most.
             rInner.setX(xInner + xInc * xComp);
             rInner.invalidate();
 
             rCentre.setX(xCentre + xInc);
             rCentre.invalidate();
+
+            steering = 5;
         } else {
             rInner.setX(xInner + xDiff * xComp);
             rInner.invalidate();
 
             rCentre.setX(xCentre + xDiff);
             rCentre.invalidate();
+
+            steering = map(xDiff, -xInc, xInc, Driver.MAX_STEERING_LEFT, Driver.MAX_STEERING_RIGHT);
         }
+
+        return steering;
     }
 
     private void centreRightPositions() {
@@ -300,22 +335,6 @@ public class JoystickFragment extends Fragment {
 
         rCentre.setX(xCentre);
         rCentre.invalidate();
-    }
-
-    private void rectifyThrust() {
-        // TODO.
-    }
-
-    private void stopThrust() {
-        // TODO.
-    }
-
-    private void rectifySteering() {
-        // TODO.
-    }
-
-    private void centerSteering() {
-        // TODO.
     }
 
     private void toastMessage(String message) {
