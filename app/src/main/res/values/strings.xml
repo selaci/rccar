@@ -24,4 +24,7 @@
     <string name="settings_not_found">Settings not found</string>
     <string name="device_not_found">Device not found</string>
     <string name="next_sequence">Next Sequence</string>
+    <string name="power_distribution">Power Distribution</string>
+    <string name="left">Left</string>
+    <string name="right">Right</string>
 </resources>

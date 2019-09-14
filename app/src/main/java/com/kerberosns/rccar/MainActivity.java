@@ -21,11 +21,13 @@ import com.kerberosns.rccar.fragments.DevicesFragment;
 import com.kerberosns.rccar.fragments.JoystickFragment;
 import com.kerberosns.rccar.fragments.SettingsFragment;
 
+// TODO: Phone header and app header have the same color. It does not feel right.
 public class MainActivity extends AppCompatActivity implements
         DevicesFragment.Selectable, SettingsFragment.Configurable {
 
     public static final String APPLICATION = "RC_CAR";
-    public static String SETTINGS = "SETTINGS";
+    public static String SETTINGS          = "SETTINGS";
+    public static String BLUETOOTH_DEVICE  = "BLUETOOTH_DEVICE";
 
     private DrawerLayout mDrawer;
     private Toolbar mToolbar;

@@ -166,26 +166,4 @@
         app:layout_constraintStart_toStartOf="parent" />
 
 
-    <SeekBar
-        android:id="@+id/left"
-        style="@style/Widget.AppCompat.SeekBar.Discrete"
-        android:layout_width="192dp"
-        android:layout_height="wrap_content"
-        android:max="10"
-        android:progress="10"
-        android:rotation="270"
-        app:layout_constraintStart_toEndOf="@+id/lInner"
-        app:layout_constraintTop_toBottomOf="@+id/up2" />
-
-    <SeekBar
-        android:id="@+id/right"
-        style="@style/Widget.AppCompat.SeekBar.Discrete"
-        android:layout_width="192dp"
-        android:layout_height="wrap_content"
-        android:max="10"
-        android:progress="10"
-        android:rotation="270"
-        app:layout_constraintEnd_toStartOf="@+id/rInner"
-        app:layout_constraintTop_toTopOf="@+id/rOuter" />
-
 </androidx.constraintlayout.widget.ConstraintLayout>
