@@ -6,12 +6,9 @@ import android.bluetooth.BluetoothHeadset;
 import android.bluetooth.BluetoothProfile;
 import android.content.Context;
 import android.os.Build;
-import android.util.ArraySet;
-
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 /**
  * Android has a bluetooth adapter that publishes a lot of behaviour. This class wraps around this
@@ -23,10 +20,12 @@ public class RealBluetoothManager extends BluetoothManager {
     private BluetoothAdapter mBluetoothAdapter;
     private BluetoothHeadset mBluetoothHeadset;
     private Context mContext;
+    private List<BluetoothDevice> mBluetoothDevices;
 
     RealBluetoothManager(Context context, BluetoothAdapter bluetoothAdapter) {
         mContext = context;
         mBluetoothAdapter = bluetoothAdapter;
+        mBluetoothDevices = new ArrayList<>();
     }
 
     @Override
@@ -63,6 +62,8 @@ public class RealBluetoothManager extends BluetoothManager {
                     }
                 }
             };
+
+            mBluetoothDevices = new ArrayList<>(mBluetoothAdapter.getBondedDevices());
 
             return mBluetoothAdapter.getProfileProxy(mContext.getApplicationContext(),
                     listener, BluetoothProfile.HEADSET);
@@ -102,15 +103,14 @@ public class RealBluetoothManager extends BluetoothManager {
 
     @Override
     public List<Device> getDevices() {
-        // TODO: Investigate if this should return all devices, not only the paired ones.
         if (mBluetoothAdapter != null) {
-            return assembleDeviceList(mBluetoothAdapter.getBondedDevices());
+            return assembleDeviceList(mBluetoothDevices);
         } else {
             return new ArrayList<>();
         }
     }
 
-    private List<Device> assembleDeviceList(Set<BluetoothDevice> devices) {
+    private List<Device> assembleDeviceList(List<BluetoothDevice> devices) {
         List<Device> assembledList = new ArrayList<>();
         for(BluetoothDevice device : devices) {
             assembledList.add(
@@ -142,12 +142,17 @@ public class RealBluetoothManager extends BluetoothManager {
 
     @Override
     public BluetoothDevice getBluetoothDevice(Device device) {
-        for(BluetoothDevice bluetoothDevice: mBluetoothAdapter.getBondedDevices()) {
+        for(BluetoothDevice bluetoothDevice: mBluetoothDevices) {
             if (device.getName().equals(bluetoothDevice.getName())) {
                 return bluetoothDevice;
             }
         }
 
         return null;
+    }
+
+    @Override
+    public void addBluetoothDevice(BluetoothDevice bluetoothDevice) {
+        mBluetoothDevices.add(bluetoothDevice);
     }
 }

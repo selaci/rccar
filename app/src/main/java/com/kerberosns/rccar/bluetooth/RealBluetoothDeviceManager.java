@@ -2,6 +2,9 @@ package com.kerberosns.rccar.bluetooth;
 
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
+import android.util.Log;
+
+import com.kerberosns.rccar.MainActivity;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -12,9 +15,9 @@ public class RealBluetoothDeviceManager extends BluetoothDeviceManager {
     private BluetoothSocket mSocket;
     private OutputStream mOutputStream;
 
-    RealBluetoothDeviceManager(BluetoothManager manager, Device device) {
-        super(manager, device);
-        mBluetoothDevice = manager.getBluetoothDevice(device);
+    RealBluetoothDeviceManager(BluetoothDevice bluetoothDevice) {
+        super(bluetoothDevice);
+        mBluetoothDevice = bluetoothDevice;
     }
 
     public boolean connect() throws IOException {
@@ -44,6 +47,7 @@ public class RealBluetoothDeviceManager extends BluetoothDeviceManager {
     }
 
     public void write(byte encoded) throws IOException {
+        Log.d(MainActivity.APPLICATION, "encoded: " + encoded);
         mOutputStream.write(encoded);
     }
 }

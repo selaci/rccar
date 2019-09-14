@@ -18,12 +18,20 @@ public class Device implements Parcelable {
         return name;
     }
 
+    public void setName(String name) {
+        this.name = name;
+    }
+
     public String getAddress() {
         return address;
     }
 
     public boolean isPaired() {
         return paired;
+    }
+
+    public void setPaired(boolean paired) {
+        this.paired = paired;
     }
 
     /*

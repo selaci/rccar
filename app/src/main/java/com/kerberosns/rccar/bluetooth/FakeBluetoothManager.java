@@ -62,6 +62,9 @@ public class FakeBluetoothManager extends BluetoothManager {
 
     @Override
     public BluetoothDevice getBluetoothDevice(Device device) {
-        throw new RuntimeException("This is not implemented in the \"FakeBluetoothManager\".");
+        return null;
     }
+
+    @Override
+    public void addBluetoothDevice(BluetoothDevice bluetoothDevice) {}
 }

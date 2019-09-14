@@ -1,15 +1,16 @@
 package com.kerberosns.rccar.bluetooth;
 
+import android.bluetooth.BluetoothDevice;
+
 import java.io.IOException;
 
 public abstract class BluetoothDeviceManager {
     private BluetoothManager mManager;
-    private Device mDevice;
+    private BluetoothDevice mBluetoothDevice;
     boolean connected;
 
-    public BluetoothDeviceManager(BluetoothManager manager, Device device) {
-        mManager = manager;
-        mDevice = device;
+    public BluetoothDeviceManager(BluetoothDevice bluetoothDevice) {
+        mBluetoothDevice = bluetoothDevice;
         connected = false;
     }
 

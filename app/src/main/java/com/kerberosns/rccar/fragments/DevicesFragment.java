@@ -34,7 +34,7 @@ import static com.kerberosns.rccar.MainActivity.SETTINGS;
 
 public class DevicesFragment extends Fragment implements Adapter.OnDeviceClickListener {
     public interface Selectable {
-        void onDeviceSelected(Device device);
+        void onDeviceSelected(BluetoothDevice device);
         void onRequestBluetoothEnabled();
     }
 
@@ -82,6 +82,11 @@ public class DevicesFragment extends Fragment implements Adapter.OnDeviceClickLi
             public void onBluetoothDeviceFound(BluetoothDevice device) {
                 addBluetoothDevice(device);
             }
+
+            @Override
+            public void onBluetoothDeviceChanged(BluetoothDevice device) {
+                changeBluetoothDevice(device);
+            }
         });
 
         mBluetoothManager = getBluetoothManager();
@@ -96,12 +101,23 @@ public class DevicesFragment extends Fragment implements Adapter.OnDeviceClickLi
 
     private void addBluetoothDevice(BluetoothDevice device) {
         if (!inTheList(device)) {
+            mBluetoothManager.addBluetoothDevice(device);
             mDevices.add(
                     new Device(
                             device.getName(),
                             device.getAddress(),
                             device.getBondState() == BluetoothDevice.BOND_BONDED));
-            mAdapter.notifyDataSetChanged();
+        }
+
+        mAdapter.notifyDataSetChanged();
+    }
+
+    private void changeBluetoothDevice(BluetoothDevice device) {
+        for (Device _device : mDevices) {
+            if (_device.getAddress().equals((device.getAddress()))) {
+                _device.setName(device.getName());
+                _device.setPaired(device.getBondState() == BluetoothDevice.BOND_BONDED);
+            }
         }
     }
 
@@ -152,7 +168,6 @@ public class DevicesFragment extends Fragment implements Adapter.OnDeviceClickLi
         super.onResume();
 
         mBroadcastReceiver.register(getActivity());
-        mDevices = getDevices();
         mAdapter.notifyDataSetChanged();
     }
 
@@ -201,7 +216,7 @@ public class DevicesFragment extends Fragment implements Adapter.OnDeviceClickLi
         // The device is bounded already.
         endDiscovery();
         if (device.isPaired()) {
-            mListener.onDeviceSelected(device);
+            mListener.onDeviceSelected(mBluetoothManager.getBluetoothDevice(device));
         } else {
             // TODO: At the moment all devices are paired. I don't know how the bond works.
             createBond(device);

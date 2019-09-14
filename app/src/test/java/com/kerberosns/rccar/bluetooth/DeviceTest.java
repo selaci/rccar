@@ -6,6 +6,7 @@ import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -30,5 +31,27 @@ public class DeviceTest {
     @Test
     public void isPaired() {
         assertTrue(mDevice.isPaired());
+    }
+
+    @Test
+    public void setName() {
+        mDevice.setName("A new name");
+        assertEquals("A new name", mDevice.getName());
+    }
+
+    @Test
+    public void setPairedToFalse() {
+        mDevice.setPaired(false);
+        assertFalse(mDevice.isPaired());
+    }
+
+    @Test
+    public void setPairedToTrue() {
+        mDevice.setPaired(true);
+        assertTrue(mDevice.isPaired());
+    }
+
+    @Test
+    public void writeToParcel() {
     }
 }

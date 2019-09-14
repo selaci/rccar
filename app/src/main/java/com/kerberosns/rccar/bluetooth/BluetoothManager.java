@@ -28,4 +28,5 @@ public abstract class BluetoothManager {
     public abstract List<Device> getDevices();
     public abstract void createBond(Device device) throws  Exception;
     public abstract BluetoothDevice getBluetoothDevice(Device device);
+    public abstract void addBluetoothDevice(BluetoothDevice bluetoothDevice);
 }

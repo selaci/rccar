@@ -27,6 +27,7 @@ import static android.bluetooth.BluetoothDevice.EXTRA_DEVICE;
 public class BluetoothBroadcastReceiver extends BroadcastReceiver {
     public interface ActionListener {
         void onBluetoothDeviceFound(BluetoothDevice device);
+        void onBluetoothDeviceChanged(BluetoothDevice device);
     }
 
     private IntentFilter filter;
@@ -64,11 +65,11 @@ public class BluetoothBroadcastReceiver extends BroadcastReceiver {
                     break;
                 }
                 case BluetoothDevice.ACTION_NAME_CHANGED: {
-                    callListenersWhenDeviceFound(device);
+                    callListenersWhenDeviceChanged(device);
                     break;
                 }
                 case BluetoothDevice.ACTION_BOND_STATE_CHANGED:
-                    callListenersWhenDeviceFound(device);
+                    callListenersWhenDeviceChanged(device);
                     break;
             }
         }
@@ -77,6 +78,12 @@ public class BluetoothBroadcastReceiver extends BroadcastReceiver {
     private void callListenersWhenDeviceFound(BluetoothDevice device) {
         for (ActionListener actionListener : actionListeners) {
             actionListener.onBluetoothDeviceFound(device);
+        }
+    }
+
+    private void callListenersWhenDeviceChanged(BluetoothDevice device) {
+        for (ActionListener actionListener : actionListeners) {
+            actionListener.onBluetoothDeviceChanged(device);
         }
     }
 

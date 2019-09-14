@@ -1,6 +1,7 @@
 package com.kerberosns.rccar;
 
 import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
@@ -16,7 +17,6 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
 import com.google.android.material.navigation.NavigationView;
-import com.kerberosns.rccar.bluetooth.Device;
 import com.kerberosns.rccar.fragments.DevicesFragment;
 import com.kerberosns.rccar.fragments.JoystickFragment;
 import com.kerberosns.rccar.fragments.SettingsFragment;
@@ -132,8 +132,8 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     @Override
-    public void onDeviceSelected(Device device) {
-        goToJoystick(device);
+    public void onDeviceSelected(BluetoothDevice bluetoothDevice) {
+        goToJoystick(bluetoothDevice);
     }
 
     private final static int REQUEST_ENABLE_BLUETOOTH = 0;
@@ -168,8 +168,8 @@ public class MainActivity extends AppCompatActivity implements
                .commit();
     }
 
-    private void goToJoystick(Device device) {
-      Fragment fragment = JoystickFragment.newInstance(mSettings, device);
+    private void goToJoystick(BluetoothDevice bluetoothDevice) {
+      Fragment fragment = JoystickFragment.newInstance(mSettings, bluetoothDevice);
       getSupportFragmentManager()
                .beginTransaction()
                .replace(R.id.frame_layout, fragment, null)

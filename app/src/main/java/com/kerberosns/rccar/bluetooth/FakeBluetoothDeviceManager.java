@@ -1,12 +1,13 @@
 package com.kerberosns.rccar.bluetooth;
 
+import android.bluetooth.BluetoothDevice;
 import android.util.Log;
 
 import com.kerberosns.rccar.MainActivity;
 
 public class FakeBluetoothDeviceManager extends BluetoothDeviceManager {
-    FakeBluetoothDeviceManager(BluetoothManager manager, Device device) {
-        super(manager, device);
+    FakeBluetoothDeviceManager(BluetoothDevice bluetoothDevice) {
+        super(bluetoothDevice);
     }
 
     @Override

@@ -1,17 +1,16 @@
 package com.kerberosns.rccar.bluetooth;
 
+import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 
 import com.kerberosns.rccar.Settings;
 
 public class BluetoothDeviceManagerFactory {
-    public static BluetoothDeviceManager newInstance(Context context, Settings settings, Device device) {
-        BluetoothManager bluetoothManager = BluetoothManagerFactory.newInstance(settings, context);
-
+    public static BluetoothDeviceManager newInstance(Settings settings, BluetoothDevice bluetoothDevice) {
         if (settings.isDevelopmentMode()) {
-            return new FakeBluetoothDeviceManager(bluetoothManager, device);
+            return new FakeBluetoothDeviceManager(bluetoothDevice);
         } else {
-            return new RealBluetoothDeviceManager(bluetoothManager, device);
+            return new RealBluetoothDeviceManager(bluetoothDevice);
         }
     }
 }

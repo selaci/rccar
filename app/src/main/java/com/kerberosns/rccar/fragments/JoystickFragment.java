@@ -2,6 +2,7 @@ package com.kerberosns.rccar.fragments;
 
 import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
+import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -11,7 +12,9 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.SeekBar;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -22,7 +25,6 @@ import com.kerberosns.rccar.R;
 import com.kerberosns.rccar.Settings;
 import com.kerberosns.rccar.bluetooth.BluetoothDeviceManager;
 import com.kerberosns.rccar.bluetooth.BluetoothDeviceManagerFactory;
-import com.kerberosns.rccar.bluetooth.Device;
 import com.kerberosns.rccar.rccar.Driver;
 
 import java.io.IOException;
@@ -37,10 +39,10 @@ public class JoystickFragment extends Fragment {
     private ImageView lInner, lCentre;
     private ImageView rInner, rCentre;
 
-    public static Fragment newInstance(Settings settings, Device device) {
+    public static Fragment newInstance(Settings settings, BluetoothDevice bluetoothDevice) {
         Bundle args = new Bundle();
         args.putParcelable(MainActivity.SETTINGS, settings);
-        args.putParcelable(BLUETOOTH_DEVICE, device);
+        args.putParcelable(BLUETOOTH_DEVICE, bluetoothDevice);
 
         Fragment fragment = new JoystickFragment();
         fragment.setArguments(args);
@@ -62,20 +64,20 @@ public class JoystickFragment extends Fragment {
 
         Bundle args = getArguments();
         Settings settings = null;
-        Device device = null;
+        BluetoothDevice bluetoothDevice = null;
 
         if (args != null) {
             settings = args.getParcelable(MainActivity.SETTINGS);
-            device = args.getParcelable(BLUETOOTH_DEVICE);
+            bluetoothDevice = args.getParcelable(BLUETOOTH_DEVICE);
 
-            mDeviceManager = BluetoothDeviceManagerFactory.newInstance(mContext, settings, device);
+            mDeviceManager = BluetoothDeviceManagerFactory.newInstance(settings, bluetoothDevice);
         }
 
         if (settings == null) {
             toastMessage(R.string.settings_not_found);
         }
 
-        if (device == null) {
+        if (bluetoothDevice == null) {
             toastMessage(R.string.device_not_found);
         }
 
@@ -90,6 +92,52 @@ public class JoystickFragment extends Fragment {
 
         setViewsForLeftJoystick(view);
         setViewsForRightJoystick(view);
+
+        Button led = view.findViewById(R.id.led);
+        led.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                vibrate();
+                mDriver.nextSequence();
+            }
+        });
+
+        SeekBar seekBarLeft = view.findViewById(R.id.left);
+        seekBarLeft.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
+
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                mDriver.setLeftSpeed(seekBar.getProgress());
+            }
+        });
+
+        SeekBar seekBarRight = view.findViewById(R.id.right);
+        seekBarRight.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
+
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                mDriver.setRightSpeed(seekBar.getProgress());
+            }
+        });
+
         return view;
     }
 

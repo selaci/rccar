@@ -25,7 +25,7 @@
             android:id="@+id/primary"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:fontFamily="@font/roboto_medium"
+            style="@style/TextAppearance.AppCompat.Body2"
             android:text="@string/name"
             android:textSize="16sp" />
 
@@ -33,15 +33,17 @@
             android:id="@+id/secondary"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:fontFamily="@font/roboto_medium"
-            android:text="@string/mac_address" />
+            android:text="@string/mac_address"
+            android:textSize="14sp"
+            style="@style/TextAppearance.AppCompat.Body1"/>
 
         <TextView
             android:id="@+id/tertiary"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:fontFamily="@font/roboto_medium"
-            android:text="@string/state" />
+            android:text="@string/state"
+            android:textSize="14sp"
+            style="@style/TextAppearance.AppCompat.Body1"/>
 
         <View
             android:layout_width="match_parent"

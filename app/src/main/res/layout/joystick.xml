@@ -147,4 +147,44 @@
         app:layout_constraintTop_toBottomOf="@+id/lOuter"
         app:srcCompat="@drawable/down" />
 
+    <Button
+        android:id="@+id/led"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="64dp"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
+        android:text="@string/next_sequence"
+        android:background="@drawable/led"
+        android:textColor="@color/white"
+        app:layout_constraintBottom_toBottomOf="@+id/up2"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <SeekBar
+        android:id="@+id/left"
+        style="@style/Widget.AppCompat.SeekBar.Discrete"
+        android:layout_width="192dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="124dp"
+        android:max="10"
+        android:progress="10"
+        android:rotation="270"
+        app:layout_constraintBottom_toTopOf="@+id/led"
+        app:layout_constraintEnd_toEndOf="@+id/lOuter"
+        app:layout_constraintStart_toStartOf="@+id/lOuter" />
+
+    <SeekBar
+        android:id="@+id/right"
+        style="@style/Widget.AppCompat.SeekBar.Discrete"
+        android:layout_width="192dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="124dp"
+        android:max="10"
+        android:progress="10"
+        android:rotation="270"
+        app:layout_constraintBottom_toTopOf="@+id/led"
+        app:layout_constraintEnd_toStartOf="@+id/right2"
+        app:layout_constraintStart_toEndOf="@+id/left2" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

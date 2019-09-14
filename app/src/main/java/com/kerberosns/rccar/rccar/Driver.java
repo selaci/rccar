@@ -1,25 +1,33 @@
 package com.kerberosns.rccar.rccar;
 
-import android.util.Log;
-
-import com.kerberosns.rccar.MainActivity;
 import com.kerberosns.rccar.bluetooth.BluetoothDeviceManager;
 
 import java.io.IOException;
 
 public class Driver {
-    public static final int MAX_THRUST_FORWARD = 5;
+    public static final int MAX_THRUST_FORWARD  = 5;
     public static final int MAX_THRUST_BACKWARD = -5;
 
-    public static final int MAX_STEERING_LEFT = -5;
+    public static final int MAX_STEERING_LEFT  = -5;
     public static final int MAX_STEERING_RIGHT = 5;
 
     private boolean mWasMovingForward;
     private boolean mWasMovingBackward;
+    private boolean mSteering;
 
     private BluetoothDeviceManager mDeviceManager;
 
     private byte lastCommand;
+
+    // Commands.
+    private static final byte STOP          = 0x00;
+    private static final byte MOVE_FORWARD  = 0x01;
+    private static final byte MOVE_BACKWARD = 0x02;
+    private static final byte TURN_LEFT     = 0x03;
+    private static final byte TURN_RIGHT    = 0x04;
+    private static final byte NEXT_SEQUENCE = 0x05;
+    private static final byte LEFT_SPEED    = 0x06;
+    private static final byte RIGHT_SPEED   = 0x07;
 
     public Driver(BluetoothDeviceManager deviceManager) {
         mDeviceManager = deviceManager;
@@ -50,6 +58,7 @@ public class Driver {
     }
 
     public void centerSteering() {
+        mSteering = false;
         if (wasMovingForward()) {
             moveForward();
         } else if (wasMovingBackward()) {
@@ -59,29 +68,41 @@ public class Driver {
         }
     }
 
+    public void nextSequence() {
+        send(NEXT_SEQUENCE);
+    }
+
     private void moveForward() {
         mWasMovingForward = true;
         mWasMovingBackward = false;
 
-        write((byte) 0x01);
+        if (!isSteering()) {
+            sendMovement(MOVE_FORWARD);
+        }
     }
 
     private void moveBackward() {
         mWasMovingForward = false;
         mWasMovingBackward = true;
 
-        write((byte) 0x02);
+        if (!isSteering()) {
+            sendMovement(MOVE_BACKWARD);
+        }
     }
 
-    private void write(byte command) {
+    private void sendMovement(byte command) {
         if (lastCommand != command) {
             lastCommand = command;
 
-            try {
-                mDeviceManager.write(command);
-            } catch (IOException e) {
-                // TODO: Should I toast / log the exception?
-            }
+            send(command);
+        }
+    }
+
+    private void send(byte command) {
+        try {
+            mDeviceManager.write(command);
+        } catch (IOException e) {
+            // TODO: Should I toast / log the exception?
         }
     }
 
@@ -89,15 +110,19 @@ public class Driver {
         mWasMovingForward = false;
         mWasMovingBackward = false;
 
-        write((byte) 0x00);
+        if (!isSteering()) {
+            sendMovement(STOP);
+        }
     }
 
     private void turnLeft() {
-        write((byte) 0x03);
+        mSteering = true;
+        sendMovement(TURN_LEFT);
     }
 
     private void turnRight() {
-        write((byte) 0x04);
+        mSteering = true;
+        sendMovement(TURN_RIGHT);
     }
 
     private boolean wasMovingForward() {
@@ -106,5 +131,19 @@ public class Driver {
 
     private boolean wasMovingBackward() {
         return mWasMovingBackward;
+    }
+
+    private boolean isSteering() {
+        return mSteering;
+    }
+
+    public void setLeftSpeed(int value) {
+        byte command = (byte) (((value << 4) & 0xF0) + LEFT_SPEED);
+        send(command);
+    }
+
+    public void setRightSpeed(int value) {
+        byte command = (byte) (((value << 4) & 0xF0) + RIGHT_SPEED);
+        send(command);
     }
 }

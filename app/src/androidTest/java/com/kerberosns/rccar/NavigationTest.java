@@ -40,7 +40,7 @@ public class NavigationTest {
         onView(withId(R.id.devices)).perform(click());
 
         // Verify you are at JoystickFragment.
-        onView(withId(R.id.control)).check(matches(isDisplayed()));
+        onView(withId(R.id.led)).check(matches(isDisplayed()));
 
         // Change orientation.
         mActivityRule.getActivity()
